@@ -1,0 +1,95 @@
+Create table aeronaves(
+	id serial primary key,
+	modelo varchar(150) not null,
+	codigo_cauda varchar(10) unique not null,
+	capacidade int check (capacidade > 0)
+);
+
+Create table pilotos(
+	id serial primary key,
+	nome varchar(100) not null,
+	codigo_anac varchar(6) unique not null,
+	horas_voo int default(0) check (horas_voo >= 0)
+);
+
+Create table voos(
+	id serial primary key,
+	aeronave_id	int not null,
+	piloto_id int not null,
+	numero_voo varchar(100) not null,
+	origem varchar(100) not null,
+	destino varchar(100) not null,
+	data_hora timestamp default current_timestamp,
+	status varchar(100) default 'Agendado' check (status IN ('Agendado', 'Em voo', 'Concluido', 'Cancelado')),
+
+	constraint fk_aeronave,
+		foreign key(aeronave_id),
+		references aeronaves(id),
+		on delete restrict,
+
+	constraint fk_piloto,
+		foreign key(pilotos_id),
+		references pilotos(id),
+		on delete restrict
+);
+
+Create table passageiros(
+	id serial primary key,
+	nome varchar(100) not null,
+	cpf varchar(11) unique not null,
+	email varchar(100) unique not null
+);
+
+Create table passagens(
+	id serial primary key,
+	voo_id int not null,
+	passageiro_id int not null,
+	assento varchar(4) not null,
+	classe varchar(100) default 'Economica' check (classe IN ('Economica', 'Executiva')),
+	valor decimal(10,2) not null check (valor > 0),
+	
+	constraint fk_voo,
+		foreign key(voo_id),
+		references voos(id),
+		on delete restrict,
+		
+	constraint fk_passageiro,
+		foreign key(passageiro_id),
+		references passageiros(id),
+		on delete restrict
+);
+
+Insert into aeronaves(modelo, codigo_cauda, capacidade) Values
+('GOL Grande','BDJF-324', 250),
+('United Médio','LGKF-274', 120),
+('LATAM Médio','UCJD-437', 150),
+('GOL médio','DAHS-283', 180),
+('GOL pequeno','DSWD-473', 90);
+
+Insert into pilotos(nome, codigo_anac, horas_voo) Values
+('Miguel','HDAJFD', 7),
+('Nathan','JSANDW', 9),
+('João','UCBDSE', 1),
+('Gabriel','PSDIRT', 2),
+('Renato','QUEISN', 6);
+
+Insert into voos(numero_voo, origem, destino, status) Values
+('723', 'Florianópolis', 'São Paulo', 'Em voo'),
+('372', 'Rio de Janeiro', 'Chicago', 'Concluido'),
+('834', 'São Paulo', 'Brasília', 'Agendado'),
+('348', 'Rio de Janeiro', 'São Paulo', 'Cancelado'),
+('034', 'Rio de Janeiro', 'Florianópolis', 'Em voo');
+
+Insert into passageiros(nome, cpf, email) Values
+('Luis', '32405494321', 'Luis@email.com'),
+('Samuel', '73295473251', 'Samuel@email.com'),
+('Rafa', '93247358421', 'Rafa32@email.com'),
+('Pedro', '32843243921', 'Pedro@email.com'),
+('Rodrigo', '93240327143', 'Rodrigao@email.com');
+
+Insert into passagens(assento, classe, valor) Values
+('32D', 'Economica', 250.00),
+('63A', 'Economica', 300.00),
+('42F', 'Economica', 225.00),
+('8C', 'Executiva', 950.00),
+('17A', 'Executiva', 830.00);
